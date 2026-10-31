@@ -76,22 +76,18 @@ class HomeController extends Controller
         $management_team = ManagementTeam::get();
         $reviews = ClientReview::all();
 
-        try {
-            return view('templates.' . $template . '.blades.pages.index', compact(
-                'investmentPlans',
-                'mockups',
-                'marketStats',
-                'regulatoryCompliance',
-                'sectors',
-                'page_title',
-                'aapl',
-                'btc',
-                'management_team',
-                'reviews'
-            ));
-        } catch (\Throwable $e) {
-            return response($e->getMessage() . "\n" . $e->getFile() . ':' . $e->getLine(), 500);
-        }
+        return view('templates.' . $template . '.blades.pages.index', compact(
+            'investmentPlans',
+            'mockups',
+            'marketStats',
+            'regulatoryCompliance',
+            'sectors',
+            'page_title',
+            'aapl',
+            'btc',
+            'management_team',
+            'reviews'
+        ));
     }
 
 
