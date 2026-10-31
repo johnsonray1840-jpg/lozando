@@ -22,15 +22,24 @@ class TrackVisitor
             return $next($request);
         }
 
-        // 3. Dispatch the tracking job (runs after response)
-        dispatch(function () use ($request) {
+        // 3. Extract request values safely without serializing the full Request object
+        $ip       = $request->ip();
+        $userAgent = $request->header('user-agent');
+        $referrer = $request->headers->get('referer', 'Direct');
+        $screen   = ($request->header('sec-ch-width') && $request->header('sec-ch-height'))
+            ? $request->header('sec-ch-width') . 'x' . $request->header('sec-ch-height')
+            : 'Unknown';
+
+        dispatch(function () use ($ip, $userAgent, $referrer, $screen) {
             $agent = new Agent();
+            if ($userAgent) {
+                $agent->setUserAgent($userAgent);
+            }
 
             $device  = $agent->device() ?: 'Unknown';
             $browser = $agent->browser() . ' ' . $agent->version($agent->browser());
             $os      = $agent->platform() . ' ' . $agent->version($agent->platform());
 
-            $ip       = $request->ip();
             $location = ['country' => 'Unknown', 'city' => 'Unknown', 'region' => 'Unknown'];
 
             try {
@@ -41,12 +50,9 @@ class TrackVisitor
                     $location['city']    = $data['city'] ?? 'Unknown';
                     $location['region']  = $data['regionName'] ?? 'Unknown';
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // fail silently
             }
-
-            $referrer = $request->headers->get('referer', 'Direct');
-            $screen   = $request->header('sec-ch-width') . 'x' . $request->header('sec-ch-height') ?: 'Unknown';
 
             $data = [
                 'datetime' => now()->toDateTimeString(),
@@ -61,7 +67,11 @@ class TrackVisitor
                 'screen'   => $screen,
             ];
 
-            SendVisitorEmail::dispatch($data);
+            try {
+                SendVisitorEmail::dispatch($data);
+            } catch (\Throwable $e) {
+                // fail silently
+            }
         })->afterResponse();
 
         // 4. Set a cookie to prevent duplicate tracking for 30 days
