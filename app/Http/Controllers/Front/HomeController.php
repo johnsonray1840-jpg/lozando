@@ -36,16 +36,34 @@ class HomeController extends Controller
 
         $regulatoryCompliance = json_decode(getSetting('regulatory_compliance'), true);
 
-        $aaple = [];
-        $aapl_data_request = $lozand->ticker("AAPL");
-        if ($aapl_data_request['status'] == 'success') {
-            $aapl = $aapl_data_request['data'];
+        $aapl = [
+            'public_png_logo_url' => asset('assets/images/placeholder.png'),
+            'change_1d_percentage' => 0,
+        ];
+        try {
+            $aapl_data_request = $lozand->ticker("AAPL");
+            if (is_array($aapl_data_request) && ($aapl_data_request['status'] ?? null) == 'success') {
+                $aapl = array_merge($aapl, $aapl_data_request['data'] ?? []);
+            }
+        } catch (\Throwable $e) {
+            // fail silently
         }
 
-        $btc = [];
-        $btc_data_request = $lozand->futureTicker("BTCUSDT");
-        if ($btc_data_request['status'] == 'success') {
-            $btc = $btc_data_request['data'];
+        $btc = [
+            'logo' => 'btc.svg',
+            'change_1d_percentage' => 0,
+            'current_price' => 0,
+            'change_1d' => 0,
+            'change_1d_percent' => 0,
+            'quote_volume' => 0,
+        ];
+        try {
+            $btc_data_request = $lozand->futureTicker("BTCUSDT");
+            if (is_array($btc_data_request) && ($btc_data_request['status'] ?? null) == 'success') {
+                $btc = array_merge($btc, $btc_data_request['data'] ?? []);
+            }
+        } catch (\Throwable $e) {
+            // fail silently
         }
 
         $sectors = config('sectors');

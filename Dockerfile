@@ -26,6 +26,10 @@ RUN apk add --no-cache \
         intl \
         opcache
 
+# Configure PHP-FPM to log worker errors directly to stderr so Render logs capture them
+RUN echo "catch_workers_output = yes" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
+    && echo "decorate_workers_output = no" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -54,4 +58,3 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 80
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
