@@ -3,7 +3,6 @@ import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import fs from 'fs';
 
-
 function getTemplate() {
     try {
         const content = fs.readFileSync('config/site.php', 'utf-8');
@@ -15,6 +14,11 @@ function getTemplate() {
 }
 
 const template = getTemplate();
+
+// Only enable local Laragon SSL if the local certificate files actually exist
+const laragonKey = 'C:/laragon/etc/ssl/laragon.key';
+const laragonCert = 'C:/laragon/etc/ssl/laragon.crt';
+const hasLaragonSsl = fs.existsSync(laragonKey) && fs.existsSync(laragonCert);
 
 export default defineConfig({
     plugins: [
@@ -32,12 +36,16 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-        host: 'lozand.local',
+        host: '0.0.0.0',
         cors: true,
-        https: {
-            key: fs.readFileSync('C:/laragon/etc/ssl/laragon.key'),
-            cert: fs.readFileSync('C:/laragon/etc/ssl/laragon.crt'),
-        },
+        ...(hasLaragonSsl
+            ? {
+                  https: {
+                      key: fs.readFileSync(laragonKey),
+                      cert: fs.readFileSync(laragonCert),
+                  },
+              }
+            : {}),
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
