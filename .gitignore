@@ -1,0 +1,70 @@
+# Sensitive environment & credentials
+.env
+.env.backup
+.env.production
+.env.*
+!.env.example
+/auth.json
+*.key
+
+# Dependencies
+/node_modules
+/vendor
+
+# Build artifacts & caches
+/public/hot
+/public/storage
+.phpunit.result.cache
+.phpunit.cache
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+.phpactor.json
+
+# Logs & debugging
+*.log
+storage/debugbar/
+storage/logs/*.log
+storage/pail/
+
+# Storage caches, sessions, and compiled views
+storage/framework/cache/*
+!storage/framework/cache/.gitignore
+storage/framework/cache/data/*
+!storage/framework/cache/data/.gitignore
+storage/framework/sessions/*
+!storage/framework/sessions/.gitignore
+storage/framework/views/*
+!storage/framework/views/.gitignore
+storage/framework/testing/*
+!storage/framework/testing/.gitignore
+storage/framework/laravel-store-system.lock
+
+# User uploads & KYC sensitive files in storage
+storage/app/public/deposits/*
+!storage/app/public/deposits/preserve.txt
+storage/app/public/kyc/*
+!storage/app/public/kyc/prserve.txt
+storage/app/public/profile/*
+!storage/app/public/profile/preserve.txt
+
+# System & OS junk
+.DS_Store
+Thumbs.db
+-not
+error_log
+cgi-bin/
+test_write.php
+
+# Large archives and database dumps (do NOT commit to public Git)
+*.sql
+*.zip
+*.tar.gz
+*.7z
+sky.net
+
+# Server configs from cPanel shared hosting (not needed on Render/Docker)
+Homestead.json
+Homestead.yaml
