@@ -22,16 +22,21 @@ class HomeController extends Controller
             ->get();
 
         $path = public_path('assets/templates/' . $template . '/images/mockups/');
-        $images = glob($path . '*.{png,jpg,jpeg}', GLOB_BRACE);
+        $images = is_dir($path) ? (glob($path . '*.{png,jpg,jpeg}', defined('GLOB_BRACE') ? GLOB_BRACE : 0) ?: glob($path . '*.*')) : [];
+        $images = is_array($images) ? $images : [];
         $mockups = array_map(function ($image) use ($template) {
             return asset('assets/templates/' . $template . '/images/mockups/' . basename($image));
         }, $images);
 
-        $lozand = new LozandServices();
-        $stocks = $lozand->marketStocks();
         $marketStats = [];
-        if ($stocks['status'] == 'success') {
-            $marketStats = $stocks['data'];
+        try {
+            $lozand = new LozandServices();
+            $stocks = $lozand->marketStocks();
+            if (is_array($stocks) && ($stocks['status'] ?? null) == 'success') {
+                $marketStats = $stocks['data'] ?? [];
+            }
+        } catch (\Throwable $e) {
+            // fail silently
         }
 
         $regulatoryCompliance = json_decode(getSetting('regulatory_compliance'), true);
