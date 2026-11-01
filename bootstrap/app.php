@@ -63,6 +63,12 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e, $request) {
+            // Temporary debug output to diagnose 500 error in production
+            if ($request->has('debug') || config('app.debug')) {
+                return response($e->getMessage() . "\n\nIn " . $e->getFile() . ':' . $e->getLine() . "\n\n" . $e->getTraceAsString(), 500, [
+                    'Content-Type' => 'text/plain',
+                ]);
+            }
             if (!$request->expectsJson() || $request->isMethod('get')) {
 
                 if (str_contains($e->getMessage(), 'Call to undefined method') || str_contains($e->getMessage(), 'does not exist')) {
