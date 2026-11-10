@@ -23,6 +23,10 @@ php artisan view:cache || true
 # Run database migrations automatically if DB is connected
 php artisan migrate --force || true
 
+# Configure Nginx port dynamically based on Render's $PORT (defaults to 80 if not set)
+export PORT="${PORT:-80}"
+sed -i "s/\${PORT}/$PORT/g" /etc/nginx/nginx.conf
+
 # Start PHP-FPM in background (logging to stderr so Render logs capture PHP errors)
 php-fpm -D -R
 
